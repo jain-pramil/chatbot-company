@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Company Dashboard</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    function switchTab(tabId) {
+      document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
+      document.getElementById(tabId).classList.remove('hidden');
+
+      document.querySelectorAll('.tab-button').forEach(btn => btn.classList.remove('border-b-2', 'border-blue-600', 'text-blue-600'));
+      document.getElementById('btn-' + tabId).classList.add('border-b-2', 'border-blue-600', 'text-blue-600');
+    }
+
+    function updateCompanyInputs() {
+      const companyId = document.getElementById('company-select').value;
+      document.querySelectorAll('input[name="company_id"]').forEach(input => input.value = companyId);
+    }
+
+    window.onload = () => {
+      updateCompanyInputs();
+      switchTab('upload');
+    }
+  </script>
+</head>
+<body class="bg-gray-50 text-gray-900">
+  <div class="max-w-4xl mx-auto p-6">
+    <h1 class="text-3xl font-bold text-center mb-6">Company Knowledge Manager</h1>
+
+    <!-- Company Selection -->
+    <div class="mb-6">
+      <label for="company-select" class="block mb-2 font-medium">Select Company</label>
+      <select id="company-select" onchange="updateCompanyInputs()" class="w-full border rounded px-3 py-2">
+        <option value="pramil">Pramil</option>
+        <option value="openai">OpenAI</option>
+        <option value="acme">ACME Corp</option>
+        <!-- Add more as needed -->
+      </select>
+    </div>
+
+    <!-- Tabs -->
+    <div class="flex space-x-4 border-b mb-4">
+      <button id="btn-upload" onclick="switchTab('upload')" class="tab-button px-4 py-2">📄 Upload</button>
+      <button id="btn-url" onclick="switchTab('url')" class="tab-button px-4 py-2">🌐 Website</button>
+      <button id="btn-faq" onclick="switchTab('faq')" class="tab-button px-4 py-2">❓ FAQ</button>
+    </div>
+
+    <!-- Upload File -->
+    <div id="upload" class="tab-content hidden bg-white p-6 rounded-xl shadow">
+      <h2 class="text-xl font-semibold mb-4">Upload Document</h2>
+      <form action="/chatbot/upload" method="POST" enctype="multipart/form-data" class="space-y-4">
+        <input type="hidden" name="company_id" />
+        <input type="file" name="file" accept=".pdf,.docx,.txt" class="border p-2 rounded w-full" required />
+        <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">
+          Upload
+        </button>
+      </form>
+    </div>
+
+    <!-- Scrape URL -->
+    <div id="url" class="tab-content hidden bg-white p-6 rounded-xl shadow">
+      <h2 class="text-xl font-semibold mb-4">Scrape Website</h2>
+      <form action="/chatbot/upload" method="POST" class="space-y-4">
+        <input type="hidden" name="company_id" />
+        <input type="url" name="url" placeholder="https://example.com" class="border p-2 rounded w-full" required />
+        <button type="submit" class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700">
+          Scrape & Index
+        </button>
+      </form>
+    </div>
+
+    <!-- Manual FAQ -->
+    <div id="faq" class="tab-content hidden bg-white p-6 rounded-xl shadow">
+      <h2 class="text-xl font-semibold mb-4">Add Manual FAQ</h2>
+      <form action="/chatbot/add-faq" method="POST" class="space-y-4">
+        <input type="hidden" name="company_id" />
+        <input type="text" name="question" placeholder="Enter question..." class="border p-2 rounded w-full" required />
+        <textarea name="answer" placeholder="Enter answer..." class="border p-2 rounded w-full h-24" required></textarea>
+        <button type="submit" class="bg-purple-600 text-white px-4 py-2 rounded hover:bg-purple-700">
+          Add FAQ
+        </button>
+      </form>
+    </div>
+  </div>
+</body>
+</html>

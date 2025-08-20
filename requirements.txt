@@ -1,0 +1,13 @@
+fastapi
+uvicorn
+langchain
+langchain-community
+openai
+tqdm==4.66.3
+pillow==11.1.0
+protobuf==5.29.3
+pypdf
+python-docx
+requests
+beautifulsoup4
+jinja2>=3.0

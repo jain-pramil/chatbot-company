@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Chat - {{ company_id }}</title>
+  </head>
+  <body>
+    <link rel="stylesheet" href="/static/chat.css" />
+    <body class="full-chat-page">
+      <div class="chat-container" id="chat-container">
+        <div class="header">Chat with Company {{ company_id }}</div>
+        <div class="messages"></div>
+        <div class="input-container">
+          <input type="text" placeholder="Type your message..." />
+          <button>Send</button>
+        </div>
+      </div>
+
+      <script src="/static/chat.js"></script>
+      <script>
+        initChat("#chat-container", "{{ company_id }}");
+      </script>
+    </body>
+  </body>
+</html>

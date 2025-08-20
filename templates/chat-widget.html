@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Chat - {{ company_id }}</title>
+</head>
+<body>
+<!-- Include the chat widget script -->
+<link rel="stylesheet" href="/static/chat.css" />
+<script src="/static/chat.js"></script>
+<script>
+    initFloatingChat("{{ company_id }}");
+</script>
+
+</body>
+</html>
