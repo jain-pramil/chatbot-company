@@ -10,6 +10,12 @@ from services.embedder import embedding_model
 from services.vector_store import create_or_load_faiss_index
 from utils.file_loader import extract_text_from_file, extract_text_from_url
 
+from fastapi import APIRouter, Request, HTTPException
+from pydantic import BaseModel
+from typing import List
+from session_manager import get_session, update_session   # ✅ import here
+import openai  # or your preferred LLM backend
+
 import os
 
 router = APIRouter()
@@ -22,6 +28,16 @@ class FAQItem(BaseModel):
     answer: str
     company_id: str
 
+class ChatRequest(BaseModel):
+    session_id: str
+    message: str
+    company_id: str
+
+
+class ChatResponse(BaseModel):
+    response: str
+    session_id: str
+    history: List[dict]
 
 # Routes
 @router.post("/upload/")
@@ -73,14 +89,14 @@ async def upload_file_or_url(
 
 
 @router.post("/ask/{company_id}")
-async def ask_question(company_id: str, question: str = Form(...)):
+async def ask_question(company_id: str, question: str = Form(...), session_id: str = Form(None)):
     try:
+        # session handling
+        session_id, history = get_session(session_id)
+
         index_dir = f"data/{company_id}/faiss_index"
         if not os.path.exists(index_dir):
-            return JSONResponse(
-                status_code=404,
-                content={"error": "No data found for this company."}
-            )
+            return JSONResponse(status_code=404, content={"error": "No data found for this company."})
 
         vectorstore = FAISS.load_local(
             index_dir,
@@ -88,19 +104,17 @@ async def ask_question(company_id: str, question: str = Form(...)):
             allow_dangerous_deserialization=True
         )
         retriever = vectorstore.as_retriever()
-        docs = retriever.get_relevant_documents(question)
-
-        print("Retrieved Chunks:")
-        for d in docs:
-            print(d.page_content)
 
         qa = RetrievalQA.from_chain_type(
             llm=ChatOpenAI(model="gpt-3.5-turbo"),
             retriever=retriever
         )
-
         result = qa.run(question)
-        return {"answer": result}
+
+        # save into session memory
+        update_session(session_id, question, result)
+
+        return {"answer": result, "session_id": session_id}
 
     except Exception as e:
         return JSONResponse(status_code=500, content={"error": str(e)})
